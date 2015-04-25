@@ -18,8 +18,19 @@ import com.hjh.file.sync.util.LogHelper;
 public class Main {
 
 	public static void main(String argv[]) throws IOException {
-		final File sourceFile = new File(FSConfig.TEST_PATH);
-		final File targetFile = new File("E:\\testsync");
+
+		File sourceFile = new File(FSConfig.TEST_PATH);
+		File targetFile = new File("E:\\testsync");
+
+		if (argv.length == 2) {
+			sourceFile = new File(argv[0]);
+			targetFile = new File(argv[1]);
+		}
+
+		if (!sourceFile.exists()) {
+			throw new RuntimeException("源对象不存在:" + sourceFile.getAbsolutePath());
+		}
+
 		long start = System.currentTimeMillis();
 		try {
 			sync(sourceFile, targetFile);
