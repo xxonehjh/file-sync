@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.hjh.file.sync.core.FSConfig;
 import com.hjh.file.sync.core.SyncFolderInfo;
 import com.hjh.file.sync.core.SyncItem;
 import com.hjh.file.sync.process.CancelControl;
@@ -14,22 +13,27 @@ import com.hjh.file.sync.util.LogHelper;
 
 /**
  * 程序入口
+ * 
  * @author 洪 qq:2260806429
  */
 public class Main {
 
 	public static void main(String argv[]) throws IOException {
 
-		File sourceFile = new File(FSConfig.TEST_PATH);
-		File targetFile = new File("E:\\testsync");
+		File sourceFile = null;
+		File targetFile = null;
 
 		if (argv.length == 2) {
 			sourceFile = new File(argv[0]);
 			targetFile = new File(argv[1]);
+		} else {
+			LogHelper.info("请传入参数");
+			return;
 		}
 
 		if (!sourceFile.exists()) {
-			throw new RuntimeException("源对象不存在:" + sourceFile.getAbsolutePath());
+			LogHelper.info("源对象不存在:" + sourceFile.getAbsolutePath());
+			return;
 		}
 
 		long start = System.currentTimeMillis();
@@ -38,7 +42,7 @@ public class Main {
 		} finally {
 			long cost = System.currentTimeMillis() - start;
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 			}
 			LogHelper.info("同步完成耗时:" + printCostTime(cost));
@@ -75,6 +79,8 @@ public class Main {
 		listener_target.print("target scan");
 		final SyncFolderInfo target = new SyncFolderInfo(targetFile);
 
+		final int[] finishcount = new int[1];
+
 		new Thread() {
 			public void run() {
 				try {
@@ -82,6 +88,8 @@ public class Main {
 				} catch (IOException e) {
 					LogHelper.error(e);
 					cancelControl.cancel = true;
+				} finally {
+					finishcount[0]++;
 				}
 			}
 		}.start();
@@ -93,11 +101,13 @@ public class Main {
 				} catch (IOException e) {
 					LogHelper.error(e);
 					cancelControl.cancel = true;
+				} finally {
+					finishcount[0]++;
 				}
 			}
 		}.start();
 
-		while (!listener_source.isFinish() || !listener_target.isFinish()) {
+		while (finishcount[0] != 2) {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -106,7 +116,7 @@ public class Main {
 		}
 
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			LogHelper.error(e);
 		}
