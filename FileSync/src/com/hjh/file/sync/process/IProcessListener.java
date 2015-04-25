@@ -11,7 +11,7 @@ public interface IProcessListener {
 
 	public void updateTotalSize(long totalSize);
 
-	public void work(int size);
+	public void work(long size);
 
 	public boolean isFinish();
 

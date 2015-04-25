@@ -24,7 +24,7 @@ public class SimpleProcessListener implements IProcessListener {
 	}
 
 	@Override
-	public void work(int size) {
+	public void work(long size) {
 		worksize += size;
 	}
 

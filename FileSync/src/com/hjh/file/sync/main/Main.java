@@ -19,10 +19,8 @@ import com.hjh.file.sync.util.LogHelper;
 public class Main {
 
 	public static void main(String argv[]) throws IOException {
-
 		File sourceFile = null;
 		File targetFile = null;
-
 		if (argv.length == 2) {
 			sourceFile = new File(argv[0]);
 			targetFile = new File(argv[1]);
@@ -30,12 +28,10 @@ public class Main {
 			LogHelper.info("请传入参数");
 			return;
 		}
-
 		if (!sourceFile.exists()) {
 			LogHelper.info("源对象不存在:" + sourceFile.getAbsolutePath());
 			return;
 		}
-
 		long start = System.currentTimeMillis();
 		try {
 			sync(sourceFile, targetFile);
@@ -135,7 +131,6 @@ public class Main {
 			throw new RuntimeException("创建目标文件夹失败");
 		}
 
-		// TODO 优化，先同步目录 ， 再多线程同步文件
 		final IProcessListener listener_sync = new SimpleProcessListener(
 				cancelControl, size);
 		listener_sync.print("sync");

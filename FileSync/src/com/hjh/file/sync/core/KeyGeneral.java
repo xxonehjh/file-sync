@@ -20,11 +20,11 @@ public class KeyGeneral {
 		final IProcessListener listener = new SimpleProcessListener(null,
 				new File(path).isDirectory() ? 0 : new File(path).length());
 		listener.print("test id");
-		System.out.println(id(path, listener));
+		System.out.println(id(path, listener, null));
 	}
 
-	public static String id(String filePath, IProcessListener listener)
-			throws IOException {
+	public static String id(String filePath, IProcessListener listener,
+			File root) throws IOException {
 		File file = new File(filePath);
 		StringBuffer idBuf = new StringBuffer();
 		try {
@@ -38,7 +38,18 @@ public class KeyGeneral {
 			idBuf.append(FSConfig.INFO_SEP);
 			idBuf.append(file.length());
 			idBuf.append(FSConfig.INFO_SEP);
-			String key = key(filePath, listener);
+			String key = null;
+			if (null != root) {
+				key = FSConfig.getCache(
+						filePath.substring(root.getAbsolutePath().length()),
+						root);
+				if(null!=key){
+					listener.work(file.length());
+				}
+			}
+			if (null == key) {
+				key = key(filePath, listener);
+			}
 			if (null == key) {
 				return null;
 			}

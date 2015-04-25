@@ -16,6 +16,7 @@ import com.hjh.file.sync.util.LogHelper;
  */
 public class SyncItem {
 
+	private File targetFile;
 	public String from;
 	public String to;
 
@@ -78,6 +79,7 @@ public class SyncItem {
 
 	public void sync(File sourceFile, File targetFile,
 			IProcessListener listener_sync) throws IOException {
+		this.targetFile = targetFile;
 		if (listener_sync.isCancel()) {
 			return;
 		}
@@ -166,6 +168,7 @@ public class SyncItem {
 				out.close();
 				out = null;
 				to.setLastModified(from.lastModified());
+				FSConfig.cache(this.from, targetFile);
 			} finally {
 				in.close();
 				if (null != out) {
@@ -225,6 +228,7 @@ public class SyncItem {
 				out.close();
 				out = null;
 				to.setLastModified(from.lastModified());
+				FSConfig.cache(this.from, targetFile);
 			} finally {
 				in.close();
 				if (null != out) {
