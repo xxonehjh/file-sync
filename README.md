@@ -9,3 +9,7 @@
 特性说明：<br/>
 可增量同步，程序会检测源目录和目标目录已经同步好的数据，<br/>
 对比之后继续同步未同步的数据<br/>
+
+<br/>
+<br/>
+<img src="https://raw.githubusercontent.com/xxonehjh/file-sync/master/run.png"/><br/>
