@@ -13,6 +13,7 @@ import com.hjh.file.sync.process.SimpleProcessListener;
 import com.hjh.file.sync.util.LogHelper;
 
 /**
+ * 程序入口
  * @author 洪 qq:2260806429
  */
 public class Main {

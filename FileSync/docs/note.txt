@@ -1,0 +1,1 @@
+The main class is 'com.hjh.file.sync.main.Main'
