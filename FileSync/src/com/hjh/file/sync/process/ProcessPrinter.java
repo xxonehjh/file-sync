@@ -1,5 +1,7 @@
 package com.hjh.file.sync.process;
 
+import com.hjh.file.sync.util.LogHelper;
+
 /**
  * @author 洪 qq:2260806429
  */
@@ -18,7 +20,7 @@ class ProcessPrinter {
 				done = false;
 				try {
 					do {
-						System.out.println(name + " work:"
+						LogHelper.info(name + " work:"
 								+ String.format("%5.2f", listener.getPercent())
 								+ "%");
 						if (listener.isFinish()) {
@@ -27,7 +29,7 @@ class ProcessPrinter {
 						try {
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							LogHelper.error(e);
 						}
 					} while (true);
 				} finally {
