@@ -19,11 +19,34 @@ public class Main {
 	public static void main(String argv[]) throws IOException {
 		final File sourceFile = new File(FSConfig.TEST_PATH);
 		final File targetFile = new File("E:\\testsync");
-		sync(sourceFile, targetFile);
+		long start = System.currentTimeMillis();
+		try {
+			sync(sourceFile, targetFile);
+		} finally {
+			LogHelper.info("耗时:"
+					+ printCostTime(System.currentTimeMillis() - start));
+		}
+	}
+
+	public static String printCostTime(long cost) {
+		if (cost < 1000) {
+			return cost + "毫秒";
+		}
+		cost = cost / 1000;
+		if (cost < 60) {
+			return cost + "秒";
+		}
+		if (cost / 60 < 10) {
+			return cost / 60 + "分" + cost % 60 + "秒";
+		}
+		return cost / 60 / 60 + "小时" + cost / 60 % 60 + "分" + cost % 60 % 60
+				+ "秒";
 	}
 
 	public static void sync(File sourceFile, File targetFile)
 			throws IOException {
+		LogHelper.info("Sync from \"" + sourceFile.getAbsolutePath()
+				+ "\" TO \"" + targetFile.getAbsolutePath() + "\"");
 		final IProcessListener listener_source = new SimpleProcessListener();
 		listener_source.print("source scan");
 		SyncFolderInfo source = new SyncFolderInfo(sourceFile)
@@ -37,7 +60,8 @@ public class Main {
 		for (SyncItem item : items) {
 			size += item.getSyncSize();
 		}
-		LogHelper.info("total sync size:" + (size / (1024 * 1024)) + "M");
+		LogHelper.info("total sync size:"
+				+ (size * 100 / (1024 * 1024) * 1.0 / 100) + "M");
 		if (!targetFile.exists()) {
 			targetFile.mkdir();
 		}
