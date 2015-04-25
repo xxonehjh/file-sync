@@ -112,6 +112,8 @@ public class Main {
 		if (!targetFile.exists()) {
 			throw new RuntimeException("创建目标文件夹失败");
 		}
+
+		// TODO 优化，先同步目录 ， 再多线程同步文件
 		final IProcessListener listener_sync = new SimpleProcessListener(
 				cancelControl, size);
 		listener_sync.print("sync");
@@ -121,6 +123,7 @@ public class Main {
 			}
 			item.sync(sourceFile, targetFile, listener_sync);
 		}
+
 	}
 
 }
