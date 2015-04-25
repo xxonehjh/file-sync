@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hjh.file.sync.process.IProcessListener;
-import com.hjh.file.sync.process.ProcessPrinter;
 import com.hjh.file.sync.process.SimpleProcessListener;
 
 /**
@@ -19,8 +18,8 @@ public class SyncFolderInfo {
 
 	public static void main(String argv[]) throws IOException {
 		final String path = FSConfig.TEST_PATH;
-		final IProcessListener listener = new SimpleProcessListener(1);
-		new ProcessPrinter().start(listener);
+		final IProcessListener listener = new SimpleProcessListener();
+		listener.print("test scan");
 		System.out.println(new SyncFolderInfo(new File(path)).scan(listener)
 				.printInfo());
 	}
@@ -53,8 +52,47 @@ public class SyncFolderInfo {
 		return buf.toString();
 	}
 
+	public List<SyncItem> sync(SyncFolderInfo target) {
+		List<SyncItem> ret = new ArrayList<SyncItem>();
+		int maxSource = this.fileKeys.size();
+		int maxTarget = target.fileKeys.size();
+		for (int i = 0, j = 0; i < maxSource || j < maxTarget;) {
+			String keysource = i >= maxSource ? null : this.fileKeys.get(i);
+			String keytarget = j >= maxTarget ? null : target.fileKeys.get(j);
+			if (keysource == null) {
+				ret.add(new SyncItem(null, keytarget));
+				j++;
+			} else if (keytarget == null) {
+				ret.add(new SyncItem(keysource, null));
+				i++;
+			} else {
+				String pathsource = keysource.split(FSConfig.INFO_SEP)[FSConfig.NAME_INDEX];
+				String pathtarget = keytarget.split(FSConfig.INFO_SEP)[FSConfig.NAME_INDEX];
+				int cmp = pathsource.compareTo(pathtarget);
+				if (0 == cmp) {
+					if (!keysource.equals(keytarget)) {
+						ret.add(new SyncItem(keysource, keytarget));
+					}
+					i++;
+					j++;
+				} else if (cmp > 0) {
+					ret.add(new SyncItem(null, keytarget));
+					j++;
+				} else {
+					ret.add(new SyncItem(keysource, null));
+					i++;
+				}
+			}
+		}
+		return ret;
+	}
+
 	public SyncFolderInfo scan(IProcessListener listener) throws IOException {
 		reset();
+		if (!this.folder.exists()) {
+			listener.updateTotalSize(0);
+			return this;
+		}
 		count(folder, listener);
 		if (listener.isCancel()) {
 			return this;
@@ -69,7 +107,11 @@ public class SyncFolderInfo {
 		if (FSConfig.isIgnore(file)) {
 			return;
 		}
-		fileKeys.add(KeyGeneral.id(file.getAbsolutePath(), listener));
+		String id = KeyGeneral.id(file.getAbsolutePath(), listener).substring(
+				folder.getAbsolutePath().length());
+		if (id.length() > 0) {
+			fileKeys.add(id);
+		}
 		if (file.isDirectory()) {
 			if (listener.isCancel()) {
 				return;

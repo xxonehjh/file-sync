@@ -11,9 +11,18 @@ import java.io.File;
  */
 public class FSConfig {
 	
-	public static final String TEST_PATH = "E:\\hjh\\KuaipanDisk\\21.软件\\02.装机必备";
+	public static final String TEST_PATH = "E:\\testsync_source";
 
-	public static final int BLOCK_SIZE = 1024 * 1024 * 10; // 10M的块大小
+	public static final long BLOCK_SIZE = 1024 * 1024 * 10; // 10M的块大小
+	
+	public final static String INFO_SEP = ":";
+	public final static String CONTENT_SEP = ";";
+
+	public final static int FOLDER_INFO_LEN = 2;
+	public final static int NAME_INDEX = 0;
+	public final static int TIME_INDEX = 1;
+	public final static int SIZE_INDEX = 2;
+	public final static int CONTENT_INDEX = 3;
 
 	public static boolean isCompareBinary() { // 是否二进制比较，否则时间比较
 		return false;

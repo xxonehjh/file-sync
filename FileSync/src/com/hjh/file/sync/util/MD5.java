@@ -3,6 +3,9 @@ package com.hjh.file.sync.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * @author 洪 qq:2260806429
+ */
 public class MD5 {
 
 	public static String md5(byte[] datas, int pos, int len) {

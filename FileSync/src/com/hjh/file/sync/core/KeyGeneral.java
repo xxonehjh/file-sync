@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import com.hjh.file.sync.process.IProcessListener;
-import com.hjh.file.sync.process.ProcessPrinter;
 import com.hjh.file.sync.process.SimpleProcessListener;
 import com.hjh.file.sync.util.MD5;
 
@@ -20,7 +19,7 @@ public class KeyGeneral {
 		final String path = FSConfig.TEST_PATH;
 		final IProcessListener listener = new SimpleProcessListener(new File(
 				path).isDirectory() ? 0 : new File(path).length());
-		new ProcessPrinter().start(listener);
+		listener.print("test id");
 		System.out.println(id(path, listener));
 	}
 
@@ -33,12 +32,12 @@ public class KeyGeneral {
 		} catch (IOException e) {
 			throw new RuntimeException("获取路径失败:" + filePath, e);
 		}
-		idBuf.append(":");
+		idBuf.append(FSConfig.INFO_SEP);
 		idBuf.append(file.lastModified());
-		idBuf.append(":");
-		idBuf.append(file.isDirectory() ? 0 : file.length());
 		if (file.isFile()) {
-			idBuf.append(":");
+			idBuf.append(FSConfig.INFO_SEP);
+			idBuf.append(file.length());
+			idBuf.append(FSConfig.INFO_SEP);
 			String key = key(filePath, listener);
 			if (null == key) {
 				return null;
@@ -54,7 +53,7 @@ public class KeyGeneral {
 		StringBuffer keyBuf = new StringBuffer();
 		File file = new File(filePath);
 		FileInputStream in = new FileInputStream(file);
-		byte[] cache = new byte[FSConfig.BLOCK_SIZE];
+		byte[] cache = new byte[(int) FSConfig.BLOCK_SIZE];
 		try {
 			int len = 0;
 			while (true) {
@@ -65,7 +64,7 @@ public class KeyGeneral {
 				if (len <= 0) {
 					break;
 				}
-				keyBuf.append(";");
+				keyBuf.append(FSConfig.CONTENT_SEP);
 				keyBuf.append(MD5.md5(cache, 0, len));
 				listener.work(len);
 			}

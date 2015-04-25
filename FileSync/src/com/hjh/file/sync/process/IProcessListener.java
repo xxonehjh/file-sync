@@ -19,4 +19,6 @@ public interface IProcessListener {
 
 	public double getPercent();
 
+	public void print(String name);
+
 }

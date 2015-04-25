@@ -1,17 +1,19 @@
 package com.hjh.file.sync.process;
 
+/**
+ * @author 洪 qq:2260806429
+ */
+public class SimpleProcessListener implements IProcessListener {
 
-
-public class SimpleProcessListener implements IProcessListener{
-
+	private String name = "";
 	private long totalsize;
 	private long worksize = 0;
-	
-	public SimpleProcessListener(){
+
+	public SimpleProcessListener() {
 		this(0);
 	}
-	
-	public SimpleProcessListener(long totalSize){
+
+	public SimpleProcessListener(long totalSize) {
 		this.totalsize = totalSize;
 	}
 
@@ -22,7 +24,7 @@ public class SimpleProcessListener implements IProcessListener{
 
 	@Override
 	public boolean isFinish() {
-		return totalsize == worksize;
+		return totalsize == worksize || isCancel();
 	}
 
 	@Override
@@ -38,6 +40,19 @@ public class SimpleProcessListener implements IProcessListener{
 	@Override
 	public void updateTotalSize(long totalSize) {
 		this.totalsize = totalSize;
+		touchPrint();
+	}
+
+	@Override
+	public void print(String name) {
+		this.name = name;
+		touchPrint();
+	}
+
+	private void touchPrint() {
+		if (null != name && 0 != name.length() && 0 != this.totalsize) {
+			new ProcessPrinter(name).start(this);
+		}
 	}
 
 }
