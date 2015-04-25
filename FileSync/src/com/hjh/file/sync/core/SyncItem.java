@@ -163,10 +163,14 @@ public class SyncItem {
 					out.write(cache, 0, len);
 					listener_sync.work(len);
 				}
+				out.close();
+				out = null;
 				to.setLastModified(from.lastModified());
 			} finally {
 				in.close();
-				out.close();
+				if (null != out) {
+					out.close();
+				}
 			}
 		}
 	}
@@ -218,10 +222,14 @@ public class SyncItem {
 					listener_sync.work(len);
 				}
 				out.setLength(from.length());
+				out.close();
+				out = null;
 				to.setLastModified(from.lastModified());
 			} finally {
 				in.close();
-				out.close();
+				if (null != out) {
+					out.close();
+				}
 			}
 		}
 	}
