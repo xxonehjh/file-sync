@@ -1,5 +1,6 @@
 package com.hjh.file.sync.util;
 
+
 public class LogHelper {
 
 	public static void info(String msg) {
@@ -10,7 +11,7 @@ public class LogHelper {
 		System.out.println("[WARN]" + msg);
 	}
 
-	public static void error(InterruptedException e) {
+	public static void error(Exception e) {
 		e.printStackTrace();
 	}
 

@@ -17,8 +17,8 @@ public class KeyGeneral {
 
 	public static void main(String argv[]) throws IOException {
 		final String path = FSConfig.TEST_PATH;
-		final IProcessListener listener = new SimpleProcessListener(new File(
-				path).isDirectory() ? 0 : new File(path).length());
+		final IProcessListener listener = new SimpleProcessListener(null,
+				new File(path).isDirectory() ? 0 : new File(path).length());
 		listener.print("test id");
 		System.out.println(id(path, listener));
 	}

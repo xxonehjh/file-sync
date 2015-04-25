@@ -7,6 +7,7 @@ import java.util.List;
 import com.hjh.file.sync.core.FSConfig;
 import com.hjh.file.sync.core.SyncFolderInfo;
 import com.hjh.file.sync.core.SyncItem;
+import com.hjh.file.sync.process.CancelControl;
 import com.hjh.file.sync.process.IProcessListener;
 import com.hjh.file.sync.process.SimpleProcessListener;
 import com.hjh.file.sync.util.LogHelper;
@@ -23,8 +24,12 @@ public class Main {
 		try {
 			sync(sourceFile, targetFile);
 		} finally {
-			LogHelper.info("耗时:"
-					+ printCostTime(System.currentTimeMillis() - start));
+			long cost = System.currentTimeMillis() - start;
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+			LogHelper.info("同步完成耗时:" + printCostTime(cost));
 		}
 	}
 
@@ -45,16 +50,55 @@ public class Main {
 
 	public static void sync(File sourceFile, File targetFile)
 			throws IOException {
+		final CancelControl cancelControl = new CancelControl();
 		LogHelper.info("Sync from \"" + sourceFile.getAbsolutePath()
 				+ "\" TO \"" + targetFile.getAbsolutePath() + "\"");
-		final IProcessListener listener_source = new SimpleProcessListener();
+		final IProcessListener listener_source = new SimpleProcessListener(
+				cancelControl);
 		listener_source.print("source scan");
-		SyncFolderInfo source = new SyncFolderInfo(sourceFile)
-				.scan(listener_source);
-		final IProcessListener listener_target = new SimpleProcessListener();
+		final SyncFolderInfo source = new SyncFolderInfo(sourceFile);
+
+		final IProcessListener listener_target = new SimpleProcessListener(
+				cancelControl);
 		listener_target.print("target scan");
-		SyncFolderInfo target = new SyncFolderInfo(targetFile)
-				.scan(listener_target);
+		final SyncFolderInfo target = new SyncFolderInfo(targetFile);
+
+		new Thread() {
+			public void run() {
+				try {
+					source.scan(listener_source);
+				} catch (IOException e) {
+					LogHelper.error(e);
+					cancelControl.cancel = true;
+				}
+			}
+		}.start();
+
+		new Thread() {
+			public void run() {
+				try {
+					target.scan(listener_target);
+				} catch (IOException e) {
+					LogHelper.error(e);
+					cancelControl.cancel = true;
+				}
+			}
+		}.start();
+
+		while (!listener_source.isFinish() || !listener_target.isFinish()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				LogHelper.error(e);
+			}
+		}
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			LogHelper.error(e);
+		}
+
 		long size = 0;
 		List<SyncItem> items = source.sync(target);
 		for (SyncItem item : items) {
@@ -68,7 +112,8 @@ public class Main {
 		if (!targetFile.exists()) {
 			throw new RuntimeException("创建目标文件夹失败");
 		}
-		final IProcessListener listener_sync = new SimpleProcessListener(size);
+		final IProcessListener listener_sync = new SimpleProcessListener(
+				cancelControl, size);
 		listener_sync.print("sync");
 		for (SyncItem item : items) {
 			if (listener_sync.isCancel()) {
@@ -76,7 +121,6 @@ public class Main {
 			}
 			item.sync(sourceFile, targetFile, listener_sync);
 		}
-		LogHelper.info("同步完成");
 	}
 
 }

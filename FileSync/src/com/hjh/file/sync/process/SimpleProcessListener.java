@@ -5,15 +5,21 @@ package com.hjh.file.sync.process;
  */
 public class SimpleProcessListener implements IProcessListener {
 
+	private CancelControl cancelControl;
 	private String name = "";
 	private long totalsize;
 	private long worksize = 0;
 
 	public SimpleProcessListener() {
-		this(0);
+		this(null);
 	}
 
-	public SimpleProcessListener(long totalSize) {
+	public SimpleProcessListener(CancelControl cancelControl) {
+		this(cancelControl, 0);
+	}
+
+	public SimpleProcessListener(CancelControl cancelControl, long totalSize) {
+		this.cancelControl = cancelControl;
 		this.totalsize = totalSize;
 	}
 
@@ -24,7 +30,7 @@ public class SimpleProcessListener implements IProcessListener {
 
 	@Override
 	public boolean isFinish() {
-		return totalsize == worksize || isCancel();
+		return (totalsize != 0 && totalsize == worksize) || isCancel();
 	}
 
 	@Override
@@ -34,7 +40,7 @@ public class SimpleProcessListener implements IProcessListener {
 
 	@Override
 	public boolean isCancel() {
-		return false;
+		return cancelControl == null ? false : cancelControl.isCancel();
 	}
 
 	@Override
