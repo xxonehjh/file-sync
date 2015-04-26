@@ -57,14 +57,19 @@ public class FSConfig {
 	public static String getCache(String path, File target) throws IOException {
 		File cacheFile = cacheFile(path, target);
 		if (cacheFile.isFile()) {
-			FileInputStream in = new FileInputStream(cacheFile);
-			byte[] cache = new byte[(int) cacheFile.length()];
-			try {
-				in.read(cache);
-			} finally {
-				in.close();
+			File source = new File(target.getAbsolutePath() + path);
+			if (source.lastModified() == cacheFile.lastModified()) {
+				FileInputStream in = new FileInputStream(cacheFile);
+				byte[] cache = new byte[(int) cacheFile.length()];
+				try {
+					in.read(cache);
+				} finally {
+					in.close();
+				}
+				return new String(cache);
+			} else {
+				LogHelper.warn("缓存KEY文件过期:" + path);
 			}
-			return new String(cache);
 		}
 		return null;
 	}
@@ -85,6 +90,8 @@ public class FSConfig {
 			} finally {
 				out.close();
 			}
+			save.setLastModified(new File(target.getAbsolutePath() + path)
+					.lastModified());
 		}
 	}
 
