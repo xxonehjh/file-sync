@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.hjh.file.sync.core.FSConfig;
 import com.hjh.file.sync.core.SyncFolderInfo;
 import com.hjh.file.sync.core.SyncItem;
 import com.hjh.file.sync.process.CancelControl;
 import com.hjh.file.sync.process.IProcessListener;
 import com.hjh.file.sync.process.SimpleProcessListener;
+import com.hjh.file.sync.util.FileUtils;
 import com.hjh.file.sync.util.LogHelper;
 
 /**
@@ -68,6 +70,10 @@ public class Main {
 		final IProcessListener listener_source = new SimpleProcessListener(
 				cancelControl);
 		listener_source.print("source scan");
+		File cacheFile = new File(sourceFile, FSConfig.CACHE_ID_FILE);
+		if (cacheFile.isDirectory()) {
+			FileUtils.del(cacheFile);
+		}
 		final SyncFolderInfo source = new SyncFolderInfo(sourceFile);
 
 		final IProcessListener listener_target = new SimpleProcessListener(

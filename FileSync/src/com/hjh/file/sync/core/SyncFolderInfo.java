@@ -107,8 +107,8 @@ public class SyncFolderInfo {
 		if (FSConfig.isIgnore(file)) {
 			return;
 		}
-		String id = KeyGeneral.id(file.getAbsolutePath(), listener, folder)
-				.substring(folder.getAbsolutePath().length());
+		String id = KeyGeneral.id(file.getAbsolutePath(), listener, folder,
+				true);
 		if (id.length() > 0) {
 			fileKeys.add(id);
 		}

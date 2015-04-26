@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.hjh.file.sync.process.IProcessListener;
 import com.hjh.file.sync.process.SimpleProcessListener;
+import com.hjh.file.sync.util.LogHelper;
 import com.hjh.file.sync.util.MD5;
 
 /**
@@ -16,15 +17,25 @@ import com.hjh.file.sync.util.MD5;
 public class KeyGeneral {
 
 	public static void main(String argv[]) throws IOException {
-		final String path = FSConfig.TEST_PATH;
+		final String path = "G:\\disk";
+		// FSConfig.TEST_PATH;
+		for (File item : new File(path).listFiles()) {
+			if (item.isFile()) {
+				genId(item.getAbsolutePath(), new File(path));
+			}
+		}
+	}
+
+	private static void genId(String path, File root) throws IOException {
 		final IProcessListener listener = new SimpleProcessListener(null,
 				new File(path).isDirectory() ? 0 : new File(path).length());
-		listener.print("test id");
-		System.out.println(id(path, listener, null));
+		listener.print("gen id " + new File(path).getName());
+		String id = id(path, listener, root, true);
+		LogHelper.info("ID:" + id);
 	}
 
 	public static String id(String filePath, IProcessListener listener,
-			File root) throws IOException {
+			File root, boolean fromcache) throws IOException {
 		File file = new File(filePath);
 		StringBuffer idBuf = new StringBuffer();
 		try {
@@ -34,28 +45,34 @@ public class KeyGeneral {
 		}
 		idBuf.append(FSConfig.INFO_SEP);
 		idBuf.append(file.lastModified());
+		boolean tocache = false;
 		if (file.isFile()) {
 			idBuf.append(FSConfig.INFO_SEP);
 			idBuf.append(file.length());
 			idBuf.append(FSConfig.INFO_SEP);
 			String key = null;
-			if (null != root) {
+			if (fromcache) {
 				key = FSConfig.getCache(
 						filePath.substring(root.getAbsolutePath().length()),
 						root);
-				if(null!=key){
+				if (null != key) {
 					listener.work(file.length());
 				}
 			}
 			if (null == key) {
 				key = key(filePath, listener);
+				tocache = null != key;
 			}
 			if (null == key) {
 				return null;
 			}
 			idBuf.append(key);
 		}
-		return idBuf.toString();
+		String id = idBuf.toString().substring(root.getAbsolutePath().length());
+		if (tocache) {
+			FSConfig.cache(id, root);
+		}
+		return id;
 	}
 
 	public static String key(String filePath, IProcessListener listener)
